@@ -7,3 +7,5 @@ sample/lib
 
 sample/lib
 
+terraform/.terraform
+terraform/terraform.tfvars
