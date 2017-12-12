@@ -11,7 +11,7 @@ variable "availability-zone" {
 }
 
 variable "ami_images" {
-  default = "ami-58f5db3d"
+  default = "ami-95903df3"
 }
 
 variable "instance-type" {
@@ -78,19 +78,24 @@ resource "aws_security_group" "ecs-sevurity-group" {
   name = "ecs-sevurity-group"
   description = "Allow SSH inbound traffic"
   vpc_id = "${aws_vpc.sample-ecs.id}"
-
+  ingress {
+    from_port = 80
+    protocol = "tcp"
+    to_port = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   ingress {
     from_port = 22
     protocol = "tcp"
     to_port = 22
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 
   egress {
     from_port = 0
     protocol = "-1"
     to_port = 0
-    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -134,6 +139,7 @@ resource "aws_instance" "sample-docker-instance" {
   vpc_security_group_ids = [
     "${aws_security_group.ecs-sevurity-group.id}",
   ]
+  iam_instance_profile = "ecsInstanceRole"
   subnet_id = "${aws_subnet.ecs-a-subnet.id}"
   tags {
     Name = "sample-ec2"
