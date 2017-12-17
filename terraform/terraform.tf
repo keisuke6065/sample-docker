@@ -172,6 +172,10 @@ resource "aws_ecs_service" "sample-service" {
     container_name = "sample-task-ver1"
     container_port = 8080
   }
+
+  depends_on = [
+    "aws_alb_listener.sample-docker-alb-listener",
+  ]
 }
 
 // ==========================================================
