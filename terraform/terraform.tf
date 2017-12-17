@@ -247,8 +247,8 @@ resource "aws_instance" "sample-docker-instance-c" {
 
 output "public ip of sample-docker-instance-a" {
   value = [
-    "${aws_instance.sample-docker-instance-a.private_ip}",
-    "${aws_instance.sample-docker-instance-c.private_ip}",
+    "${aws_instance.sample-docker-instance-a.public_ip}",
+    "${aws_instance.sample-docker-instance-c.public_ip}",
     "${aws_alb.sample-docker-alb.dns_name}"
   ]
 }

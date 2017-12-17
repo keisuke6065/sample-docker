@@ -17,7 +17,7 @@ public class SampleController {
 	private SampleAppService sampleAppService;
 	@GetMapping
 	public String sample() {
-		sampleAppService.samplerun();
+		sampleAppService.sampleRun();
 		return "sample";
 	}
 }
