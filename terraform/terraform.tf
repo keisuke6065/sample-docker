@@ -1,6 +1,7 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "ssh_key_name" {}
+variable "my_domain" {}
 
 variable "region" {
   default = "ap-northeast-1"
@@ -27,6 +28,32 @@ provider "aws" {
   secret_key = "${var.aws_secret_key}"
   region = "${var.region}"
 }
+
+// ==========================================================
+// route53
+// ==========================================================
+
+//resource "aws_route53_zone" "dev" {
+//  name = "${var.my_domain}"
+//  name_servers = [
+//    "ns-1490.awsdns-58.org",
+//    "ns-534.awsdns-02.net",
+//    "ns-1668.awsdns-16.co.uk",
+//    "ns-231.awsdns-28.com"]
+//  tags {
+//    Environment = "main"
+//  }
+//}
+//resource "aws_route53_record" "sample" {
+//  zone_id = "Z14GRHDCWA56QT"
+//  name = "sample"
+//  type = "A"
+//  alias {
+//    name = "${aws_alb.sample-docker-alb.dns_name}"
+//    zone_id = "${aws_alb.sample-docker-alb.zone_id}"
+//    evaluate_target_health = true
+//  }
+//}
 
 // ==========================================================
 // vpc
@@ -95,9 +122,9 @@ resource "aws_security_group" "ecs-sevurity-group" {
   vpc_id = "${aws_vpc.sample-ecs.id}"
   ingress {
     from_port = 0
-    to_port   = 65535
-    protocol  = "tcp"
-    self      = true
+    to_port = 65535
+    protocol = "tcp"
+    self = true
   }
   ingress {
     from_port = 80
@@ -115,10 +142,11 @@ resource "aws_security_group" "ecs-sevurity-group" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 }
 
@@ -165,7 +193,7 @@ resource "aws_ecs_service" "sample-service" {
   name = "sample-service"
   task_definition = "${aws_ecs_task_definition.sample-task.id}"
   cluster = "${aws_ecs_cluster.sample-cluster.id}"
-//  iam_role = "${aws_iam_role.sample-ecs-iam-role.id}"
+  //  iam_role = "${aws_iam_role.sample-ecs-iam-role.id}"
   desired_count = 2
   load_balancer {
     target_group_arn = "${aws_alb_target_group.sample-docker-tartget-group.id}"
@@ -191,8 +219,11 @@ resource "aws_alb_target_group" "sample-docker-tartget-group" {
 
 resource "aws_alb" "sample-docker-alb" {
   name = "sample-docker-alb"
-  subnets = ["${aws_subnet.ecs-subnet-a.id}","${aws_subnet.ecs-subnet-c.id}"]
-  security_groups = ["${aws_security_group.ecs-sevurity-group.id}"]
+  subnets = [
+    "${aws_subnet.ecs-subnet-a.id}",
+    "${aws_subnet.ecs-subnet-c.id}"]
+  security_groups = [
+    "${aws_security_group.ecs-sevurity-group.id}"]
 }
 
 resource "aws_alb_listener" "sample-docker-alb-listener" {
@@ -242,7 +273,6 @@ resource "aws_instance" "sample-docker-instance-c" {
   }
   user_data = "#!/bin/bash\necho ECS_CLUSTER='${aws_ecs_cluster.sample-cluster.name}' > /etc/ecs/ecs.config"
 }
-
 
 
 // ==========================================================
